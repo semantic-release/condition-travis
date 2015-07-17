@@ -82,7 +82,7 @@ test('raise errors in travis environment', (t) => {
     condition({}, {}, {}, {
       TRAVIS: 'true',
       TRAVIS_BRANCH: 'master',
-      BUILD_LEADER: 'NO'
+      BUILD_MINION: 'YES'
     }, (err) => {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'ENOBUILDLEADER')
