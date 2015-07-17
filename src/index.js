@@ -1,9 +1,9 @@
 const SRError = require('@semantic-release/error')
 
 module.exports = function (options, pkg, argv, env, cb) {
-  if (!env.TRAVIS) return cb(new SRError('Not running on Travis', 'ENOTRAVIS'))
+  if (env.TRAVIS !== 'true') return cb(new SRError('Not running on Travis', 'ENOTRAVIS'))
 
-  if (env.TRAVIS_PULL_REQUEST) return cb(new SRError('Not publishing from pull requests', 'EPULLREQUEST'))
+  if (env.hasOwnProperty('TRAVIS_PULL_REQUEST') && env.TRAVIS_PULL_REQUEST !== 'false') return cb(new SRError('Not publishing from pull requests', 'EPULLREQUEST'))
   if (env.TRAVIS_TAG) return cb(new SRError('Not publishing from tags', 'EGITTAG'))
 
   const branch = (pkg.release || {}).branch || 'master'

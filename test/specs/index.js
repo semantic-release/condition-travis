@@ -16,8 +16,8 @@ test('raise errors in travis environment', (t) => {
   t.test('not running on pull requests', (tt) => {
     tt.plan(2)
     condition({}, {}, {}, {
-      TRAVIS: true,
-      TRAVIS_PULL_REQUEST: true
+      TRAVIS: 'true',
+      TRAVIS_PULL_REQUEST: '105'
     }, (err) => {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EPULLREQUEST')
@@ -27,8 +27,9 @@ test('raise errors in travis environment', (t) => {
   t.test('not running on tags', (tt) => {
     tt.plan(2)
     condition({}, {}, {}, {
-      TRAVIS: true,
-      TRAVIS_TAG: true
+      TRAVIS: 'true',
+      TRAVIS_PULL_REQUEST: 'false',
+      TRAVIS_TAG: 'v1.0.0'
     }, (err) => {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EGITTAG')
@@ -39,14 +40,14 @@ test('raise errors in travis environment', (t) => {
     tt.plan(5)
 
     condition({}, {}, {}, {
-      TRAVIS: true,
+      TRAVIS: 'true',
       TRAVIS_BRANCH: 'master'
     }, (err) => {
       tt.is(err, null)
     })
 
     condition({}, {}, {}, {
-      TRAVIS: true,
+      TRAVIS: 'true',
       TRAVIS_BRANCH: 'notmaster'
     }, (err) => {
       tt.ok(err instanceof SRError)
@@ -58,7 +59,7 @@ test('raise errors in travis environment', (t) => {
         branch: 'foo'
       }
     }, {}, {
-      TRAVIS: true,
+      TRAVIS: 'true',
       TRAVIS_BRANCH: 'master'
     }, (err) => {
       tt.ok(err instanceof SRError)
@@ -70,7 +71,7 @@ test('raise errors in travis environment', (t) => {
     tt.plan(5)
 
     condition({}, {}, {}, {
-      TRAVIS: true,
+      TRAVIS: 'true',
       TRAVIS_BRANCH: 'master',
       BUILD_LEADER: 'YES',
       BUILD_AGGREGATE_STATUS: 'others_succeeded'
@@ -79,7 +80,7 @@ test('raise errors in travis environment', (t) => {
     })
 
     condition({}, {}, {}, {
-      TRAVIS: true,
+      TRAVIS: 'true',
       TRAVIS_BRANCH: 'master',
       BUILD_LEADER: 'NO'
     }, (err) => {
@@ -88,7 +89,7 @@ test('raise errors in travis environment', (t) => {
     })
 
     condition({}, {}, {}, {
-      TRAVIS: true,
+      TRAVIS: 'true',
       TRAVIS_BRANCH: 'master',
       BUILD_LEADER: 'YES',
       BUILD_AGGREGATE_STATUS: 'others_failed'
