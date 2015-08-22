@@ -1,7 +1,10 @@
+const proxyquire = require('proxyquire')
 const { test } = require('tap')
 const SRError = require('@semantic-release/error')
 
-const condition = require('../../dist')
+const condition = proxyquire('../../', {
+  'travis-after-all': (cb) => cb(0)
+})
 
 test('raise errors in travis environment', (t) => {
   t.test('only runs on travis', (tt) => {
@@ -82,15 +85,15 @@ test('raise errors in travis environment', (t) => {
     })
   })
 
-  t.test('supports travis_after_all', (tt) => {
-    tt.plan(5)
+  t.test('supports travis-after-all', (tt) => {
+    tt.plan(8)
 
-    condition({}, {
+    proxyquire('../../', {
+      'travis-after-all': (cb) => cb(0)
+    })({}, {
       env: {
         TRAVIS: 'true',
-        TRAVIS_BRANCH: 'master',
-        BUILD_LEADER: 'YES',
-        BUILD_AGGREGATE_STATUS: 'others_succeeded'
+        TRAVIS_BRANCH: 'master'
       },
       options: {
         branch: 'master'
@@ -99,11 +102,12 @@ test('raise errors in travis environment', (t) => {
       tt.is(err, null)
     })
 
-    condition({}, {
+    proxyquire('../../', {
+      'travis-after-all': (cb) => cb(2)
+    })({}, {
       env: {
         TRAVIS: 'true',
-        TRAVIS_BRANCH: 'master',
-        BUILD_MINION: 'YES'
+        TRAVIS_BRANCH: 'master'
       },
       options: {
         branch: 'master'
@@ -113,12 +117,12 @@ test('raise errors in travis environment', (t) => {
       tt.is(err.code, 'ENOBUILDLEADER')
     })
 
-    condition({}, {
+    proxyquire('../../', {
+      'travis-after-all': (cb) => cb(1)
+    })({}, {
       env: {
         TRAVIS: 'true',
-        TRAVIS_BRANCH: 'master',
-        BUILD_LEADER: 'YES',
-        BUILD_AGGREGATE_STATUS: 'others_failed'
+        TRAVIS_BRANCH: 'master'
       },
       options: {
         branch: 'master'
@@ -126,6 +130,36 @@ test('raise errors in travis environment', (t) => {
     }, (err) => {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EOTHERSFAILED')
+    })
+
+    proxyquire('../../', {
+      'travis-after-all': (cb) => cb('weird?')
+    })({}, {
+      env: {
+        TRAVIS: 'true',
+        TRAVIS_BRANCH: 'master'
+      },
+      options: {
+        branch: 'master'
+      }
+    }, (err) => {
+      tt.ok(err instanceof SRError)
+      tt.is(err.code, 'ETAAFAIL')
+    })
+
+    var error = {}
+    proxyquire('../../', {
+      'travis-after-all': (cb) => cb(null, error)
+    })({}, {
+      env: {
+        TRAVIS: 'true',
+        TRAVIS_BRANCH: 'master'
+      },
+      options: {
+        branch: 'master'
+      }
+    }, (err) => {
+      tt.is(err, error)
     })
   })
 })
