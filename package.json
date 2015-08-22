@@ -23,7 +23,8 @@
     "nyc": "^3.0.0",
     "rimraf": "^2.4.0",
     "standard": "^4.2.1",
-    "tap": "^1.2.0"
+    "tap": "^1.2.0",
+    "semantic-release": "^5.0.1"
   },
   "homepage": "https://github.com/semantic-release/condition-travis#readme",
   "keywords": [
@@ -37,7 +38,7 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/semantic-release/condition-travis.git"
+    "url": "https://github.com/semantic-release/condition-travis.git"
   },
   "scripts": {
     "build": "rimraf dist && mkdirp dist && babel src --out-dir dist",
@@ -47,6 +48,7 @@
     "pretest:suite": "npm run build && npm run build:tests",
     "test": "npm run test:style && npm run test:suite",
     "test:style": "standard",
-    "test:suite": "nyc tap --no-cov .test/{scenarios,specs}/*.js"
+    "test:suite": "nyc tap --no-cov .test/{scenarios,specs}/*.js",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   }
 }
