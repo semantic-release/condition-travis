@@ -40,10 +40,10 @@
   "main": "dist/index.js",
   "publishConfig": {
     "access": "public",
-    "tag": "next"
+    "tag": "latest"
   },
   "release": {
-    "branch": "next"
+    "branch": "master"
   },
   "repository": {
     "type": "git",
