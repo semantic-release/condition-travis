@@ -1,4 +1,4 @@
-const travisAfterAll = require('travis-after-all')
+const { unlinkSync } = require('fs')
 
 const SRError = require('@semantic-release/error')
 
@@ -10,13 +10,14 @@ module.exports = function (pluginConfig, {env, options}, cb) {
 
   if (options.branch !== env.TRAVIS_BRANCH) return cb(new SRError(`Branch is not ${options.branch}`, 'EBRANCHMISMATCH'))
 
-  travisAfterAll((code, err) => {
-    if (code === 0) return cb(null)
+  if (env.BUILD_MINION === 'YES') return cb(new SRError('Not publishing from minion', 'ENOBUILDLEADER'))
 
-    if (code === 1) return cb(new SRError('Not publishing when other jobs in the build matrix fail.', 'EOTHERSFAILED'))
+  if (env.BUILD_LEADER === 'YES') {
+    if (env.BUILD_AGGREGATE_STATUS !== 'others_succeeded') return cb(new SRError('Not publishing when other jobs in the build matrix fail.', 'EOTHERSFAILED'))
 
-    if (code === 2) return cb(new SRError('Not publishing from minion', 'ENOBUILDLEADER'))
+    try { unlinkSync('./travis_after_all.py') } catch (e) {}
+    try { unlinkSync('./.to_export_back') } catch (e) {}
+  }
 
-    cb(err || new SRError('travis-after-all return unexpected error code', 'ETAAFAIL'))
-  })
+  cb(null)
 }
