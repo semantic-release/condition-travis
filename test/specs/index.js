@@ -128,4 +128,6 @@ test('raise errors in travis environment', (t) => {
       tt.is(err.code, 'EOTHERSFAILED')
     })
   })
+
+  t.end()
 })
