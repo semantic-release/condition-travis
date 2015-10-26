@@ -162,4 +162,6 @@ test('raise errors in travis environment', (t) => {
       tt.is(err, error)
     })
   })
+
+  t.end()
 })
