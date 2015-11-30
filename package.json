@@ -22,7 +22,7 @@
     "babel": "^5.5.8",
     "coveralls": "^2.11.2",
     "mkdirp": "^0.5.1",
-    "nyc": "^3.0.0",
+    "nyc": "^4.0.1",
     "proxyquire": "^1.7.1",
     "rimraf": "^2.4.0",
     "semantic-release": "^5.0.1",
