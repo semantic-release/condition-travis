@@ -1,35 +1,37 @@
-const proxyquire = require('proxyquire')
-const { test } = require('tap')
-const SRError = require('@semantic-release/error')
+var proxyquire = require('proxyquire')
+var test = require('tap').test
+var SRError = require('@semantic-release/error')
 
-const condition = proxyquire('../../', {
-  'travis-after-all': (cb) => cb(0)
+var condition = proxyquire('./', {
+  'travis-after-all': function (cb) {
+    cb(0)
+  }
 })
 
-test('raise errors in travis environment', (t) => {
-  t.test('only runs on travis', (tt) => {
+test('raise errors in travis environment', function (t) {
+  t.test('only runs on travis', function (tt) {
     tt.plan(2)
 
-    condition({}, {env: {}}, (err) => {
+    condition({}, {env: {}}, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'ENOTRAVIS')
     })
   })
 
-  t.test('not running on pull requests', (tt) => {
+  t.test('not running on pull requests', function (tt) {
     tt.plan(2)
     condition({}, {
       env: {
         TRAVIS: 'true',
         TRAVIS_PULL_REQUEST: '105'
       }
-    }, (err) => {
+    }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EPULLREQUEST')
     })
   })
 
-  t.test('not running on tags', (tt) => {
+  t.test('not running on tags', function (tt) {
     tt.plan(2)
     condition({}, {
       env: {
@@ -37,13 +39,13 @@ test('raise errors in travis environment', (t) => {
         TRAVIS_PULL_REQUEST: 'false',
         TRAVIS_TAG: 'v1.0.0'
       }
-    }, (err) => {
+    }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EGITTAG')
     })
   })
 
-  t.test('only running on specified branch', (tt) => {
+  t.test('only running on specified branch', function (tt) {
     tt.plan(5)
 
     condition({}, {
@@ -54,7 +56,7 @@ test('raise errors in travis environment', (t) => {
       options: {
         branch: 'master'
       }
-    }, (err) => {
+    }, function (err) {
       tt.is(err, null)
     })
 
@@ -66,7 +68,7 @@ test('raise errors in travis environment', (t) => {
       options: {
         branch: 'master'
       }
-    }, (err) => {
+    }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EBRANCHMISMATCH')
     })
@@ -79,17 +81,19 @@ test('raise errors in travis environment', (t) => {
       options: {
         branch: 'foo'
       }
-    }, (err) => {
+    }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EBRANCHMISMATCH')
     })
   })
 
-  t.test('supports travis-after-all', (tt) => {
+  t.test('supports travis-after-all', function (tt) {
     tt.plan(8)
 
-    proxyquire('../../', {
-      'travis-after-all': (cb) => cb(0)
+    proxyquire('./', {
+      'travis-after-all': function (cb) {
+        cb(0)
+      }
     })({}, {
       env: {
         TRAVIS: 'true',
@@ -98,12 +102,14 @@ test('raise errors in travis environment', (t) => {
       options: {
         branch: 'master'
       }
-    }, (err) => {
+    }, function (err) {
       tt.is(err, null)
     })
 
-    proxyquire('../../', {
-      'travis-after-all': (cb) => cb(2)
+    proxyquire('./', {
+      'travis-after-all': function (cb) {
+        cb(2)
+      }
     })({}, {
       env: {
         TRAVIS: 'true',
@@ -112,13 +118,15 @@ test('raise errors in travis environment', (t) => {
       options: {
         branch: 'master'
       }
-    }, (err) => {
+    }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'ENOBUILDLEADER')
     })
 
-    proxyquire('../../', {
-      'travis-after-all': (cb) => cb(1)
+    proxyquire('./', {
+      'travis-after-all': function (cb) {
+        cb(1)
+      }
     })({}, {
       env: {
         TRAVIS: 'true',
@@ -127,13 +135,15 @@ test('raise errors in travis environment', (t) => {
       options: {
         branch: 'master'
       }
-    }, (err) => {
+    }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EOTHERSFAILED')
     })
 
-    proxyquire('../../', {
-      'travis-after-all': (cb) => cb('weird?')
+    proxyquire('./', {
+      'travis-after-all': function (cb) {
+        cb('weird?')
+      }
     })({}, {
       env: {
         TRAVIS: 'true',
@@ -142,14 +152,16 @@ test('raise errors in travis environment', (t) => {
       options: {
         branch: 'master'
       }
-    }, (err) => {
+    }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'ETAAFAIL')
     })
 
     var error = {}
-    proxyquire('../../', {
-      'travis-after-all': (cb) => cb(null, error)
+    proxyquire('./', {
+      'travis-after-all': function (cb) {
+        cb(null, error)
+      }
     })({}, {
       env: {
         TRAVIS: 'true',
@@ -158,7 +170,7 @@ test('raise errors in travis environment', (t) => {
       options: {
         branch: 'master'
       }
-    }, (err) => {
+    }, function (err) {
       tt.is(err, error)
     })
   })
