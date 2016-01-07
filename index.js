@@ -1,9 +1,12 @@
-const travisAfterAll = require('travis-after-all')
+var travisAfterAll = require('travis-after-all')
 
-const semver = require('semver')
-const SRError = require('@semantic-release/error')
+var semver = require('semver')
+var SRError = require('@semantic-release/error')
 
-module.exports = function (pluginConfig, {env, options}, cb) {
+module.exports = function (pluginConfig, config, cb) {
+  var env = config.env
+  var options = config.options
+
   if (env.TRAVIS !== 'true') {
     return cb(new SRError(
       'semantic-release didn’t run on Travis CI and therefore a new version won’t be published.\n' +
@@ -20,7 +23,7 @@ module.exports = function (pluginConfig, {env, options}, cb) {
   }
 
   if (env.TRAVIS_TAG) {
-    let errorMessage = 'This test run was triggered by a git tag and therefore a new version won’t be published.'
+    var errorMessage = 'This test run was triggered by a git tag and therefore a new version won’t be published.'
 
     if (semver.valid(env.TRAVIS_TAG)) {
       errorMessage += '\nIt is very likely that this tag was created by semantic-release itself.\n' +
@@ -32,13 +35,15 @@ module.exports = function (pluginConfig, {env, options}, cb) {
 
   if (options.branch !== env.TRAVIS_BRANCH) {
     return cb(new SRError(
-      `This test run was triggered on the branch ${env.TRAVIS_BRANCH}, while semantic-release is configured to only publish from ${options.branch}.\n` +
+      'This test run was triggered on the branch ' + env.TRAVIS_BRANCH +
+      ', while semantic-release is configured to only publish from ' +
+      options.branch + '.\n' +
       'You can customize this behavior using the "branch" option: git.io/sr-options',
       'EBRANCHMISMATCH'
     ))
   }
 
-  travisAfterAll((code, err) => {
+  travisAfterAll(function (code, err) {
     if (code === 0) return cb(null)
 
     if (code === 1) {
