@@ -37,7 +37,8 @@
     "tag": "next"
   },
   "release": {
-    "branch": "next"
+    "branch": "next",
+    "verifyConditions": "./"
   },
   "repository": {
     "type": "git",
