@@ -1,11 +1,10 @@
+var Promise = require('bluebird')
 var proxyquire = require('proxyquire')
 var test = require('tap').test
 var SRError = require('@semantic-release/error')
 
 var condition = proxyquire('./', {
-  'travis-after-all': function (cb) {
-    cb(0)
-  }
+  'travis-deploy-once': Promise.resolve.bind(null, true)
 })
 
 test('raise errors in travis environment', function (t) {
@@ -87,13 +86,11 @@ test('raise errors in travis environment', function (t) {
     })
   })
 
-  t.test('supports travis-after-all', function (tt) {
-    tt.plan(8)
+  t.test('supports travis-deploy-once', function (tt) {
+    tt.plan(6)
 
     proxyquire('./', {
-      'travis-after-all': function (cb) {
-        cb(0)
-      }
+      'travis-deploy-once': Promise.resolve.bind(null, true)
     })({}, {
       env: {
         TRAVIS: 'true',
@@ -107,9 +104,7 @@ test('raise errors in travis environment', function (t) {
     })
 
     proxyquire('./', {
-      'travis-after-all': function (cb) {
-        cb(2)
-      }
+      'travis-deploy-once': Promise.resolve.bind(null, null)
     })({}, {
       env: {
         TRAVIS: 'true',
@@ -124,9 +119,7 @@ test('raise errors in travis environment', function (t) {
     })
 
     proxyquire('./', {
-      'travis-after-all': function (cb) {
-        cb(1)
-      }
+      'travis-deploy-once': Promise.resolve.bind(null, false)
     })({}, {
       env: {
         TRAVIS: 'true',
@@ -140,28 +133,9 @@ test('raise errors in travis environment', function (t) {
       tt.is(err.code, 'EOTHERSFAILED')
     })
 
+    var error = new Error()
     proxyquire('./', {
-      'travis-after-all': function (cb) {
-        cb('weird?')
-      }
-    })({}, {
-      env: {
-        TRAVIS: 'true',
-        TRAVIS_BRANCH: 'master'
-      },
-      options: {
-        branch: 'master'
-      }
-    }, function (err) {
-      tt.ok(err instanceof SRError)
-      tt.is(err.code, 'ETAAFAIL')
-    })
-
-    var error = {}
-    proxyquire('./', {
-      'travis-after-all': function (cb) {
-        cb(null, error)
-      }
+      'travis-deploy-once': Promise.reject.bind(null, error)
     })({}, {
       env: {
         TRAVIS: 'true',

@@ -1,6 +1,6 @@
 {
   "name": "@semantic-release/condition-travis",
-  "description": "make sure things only the right builds on travis get published",
+  "description": "make sure only the right builds on travis get published",
   "version": "0.0.0-placeholder",
   "author": "Stephan Bönnemann <stephan@boennemann.me> (http://boennemann.me)",
   "bugs": {
@@ -9,13 +9,14 @@
   "dependencies": {
     "@semantic-release/error": "^1.0.0",
     "semver": "^5.0.3",
-    "travis-after-all": "^1.3.0"
+    "travis-deploy-once": "1.0.0-node-0.10-support"
   },
   "devDependencies": {
+    "bluebird": "^3.4.6",
     "coveralls": "^2.11.2",
-    "nyc": "^8.1.0",
+    "nyc": "^9.0.1",
     "proxyquire": "^1.7.1",
-    "semantic-release": "^6.0.3",
+    "semantic-release": "^6.3.1",
     "standard": "^8.0.0",
     "tap": "^8.0.0"
   },

@@ -1,4 +1,4 @@
-var travisAfterAll = require('travis-after-all')
+var deployOnce = require('travis-deploy-once')
 
 var semver = require('semver')
 var SRError = require('@semantic-release/error')
@@ -43,23 +43,21 @@ module.exports = function (pluginConfig, config, cb) {
     ))
   }
 
-  travisAfterAll(function (code, err) {
-    if (code === 0) return cb(null)
-
-    if (code === 1) {
-      return cb(new SRError(
-        'In this test run not all jobs passed and therefore a new version won’t be published.',
-        'EOTHERSFAILED'
-      ))
-    }
-
-    if (code === 2) {
+  deployOnce().then(function (result) {
+    if (result == null) {
       return cb(new SRError(
         'This test run is not the build leader and therefore a new version won’t be published.',
         'ENOBUILDLEADER'
       ))
     }
 
-    cb(err || new SRError('travis-after-all returned unexpected error code', 'ETAAFAIL'))
-  })
+    if (result === false) {
+      return cb(new SRError(
+        'In this test run not all jobs passed and therefore a new version won’t be published.',
+        'EOTHERSFAILED'
+      ))
+    }
+
+    cb(null)
+  }, cb)
 }
