@@ -2,6 +2,7 @@ var deployOnce = require('travis-deploy-once')
 
 var semver = require('semver')
 var SRError = require('@semantic-release/error')
+var terminate = false
 
 module.exports = function (pluginConfig, config, cb) {
   var env = config.env
@@ -11,14 +12,16 @@ module.exports = function (pluginConfig, config, cb) {
     return cb(new SRError(
       'semantic-release didn’t run on Travis CI and therefore a new version won’t be published.\n' +
       'You can customize this behavior using "verifyConditions" plugins: git.io/sr-plugins',
-      'ENOTRAVIS'
+      'ENOTRAVIS',
+      terminate
     ))
   }
 
   if (env.hasOwnProperty('TRAVIS_PULL_REQUEST') && env.TRAVIS_PULL_REQUEST !== 'false') {
     return cb(new SRError(
       'This test run was triggered by a pull request and therefore a new version won’t be published.',
-      'EPULLREQUEST'
+      'EPULLREQUEST',
+      terminate
     ))
   }
 
@@ -30,7 +33,7 @@ module.exports = function (pluginConfig, config, cb) {
        'Everything is okay. For log output of the actual publishing process look at the build that ran before this one.'
     }
 
-    return cb(new SRError(errorMessage, 'EGITTAG'))
+    return cb(new SRError(errorMessage, 'EGITTAG', terminate))
   }
 
   if (options.branch !== env.TRAVIS_BRANCH) {
@@ -39,7 +42,8 @@ module.exports = function (pluginConfig, config, cb) {
       ', while semantic-release is configured to only publish from ' +
       options.branch + '.\n' +
       'You can customize this behavior using the "branch" option: git.io/sr-options',
-      'EBRANCHMISMATCH'
+      'EBRANCHMISMATCH',
+      terminate
     ))
   }
 
@@ -47,14 +51,16 @@ module.exports = function (pluginConfig, config, cb) {
     if (result == null) {
       return cb(new SRError(
         'This test run is not the build leader and therefore a new version won’t be published.',
-        'ENOBUILDLEADER'
+        'ENOBUILDLEADER',
+        terminate
       ))
     }
 
     if (result === false) {
       return cb(new SRError(
         'In this test run not all jobs passed and therefore a new version won’t be published.',
-        'EOTHERSFAILED'
+        'EOTHERSFAILED',
+        terminate
       ))
     }
 
