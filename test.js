@@ -9,16 +9,17 @@ var condition = proxyquire('./', {
 
 test('raise errors in travis environment', function (t) {
   t.test('only runs on travis', function (tt) {
-    tt.plan(2)
+    tt.plan(3)
 
     condition({}, {env: {}}, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'ENOTRAVIS')
+      tt.is(err.stop, false)
     })
   })
 
   t.test('not running on pull requests', function (tt) {
-    tt.plan(2)
+    tt.plan(3)
     condition({}, {
       env: {
         TRAVIS: 'true',
@@ -27,11 +28,12 @@ test('raise errors in travis environment', function (t) {
     }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EPULLREQUEST')
+      tt.is(err.stop, false)
     })
   })
 
   t.test('not running on tags', function (tt) {
-    tt.plan(2)
+    tt.plan(3)
     condition({}, {
       env: {
         TRAVIS: 'true',
@@ -41,11 +43,12 @@ test('raise errors in travis environment', function (t) {
     }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EGITTAG')
+      tt.is(err.stop, false)
     })
   })
 
   t.test('only running on specified branch', function (tt) {
-    tt.plan(5)
+    tt.plan(7)
 
     condition({}, {
       env: {
@@ -70,6 +73,7 @@ test('raise errors in travis environment', function (t) {
     }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EBRANCHMISMATCH')
+      tt.is(err.stop, false)
     })
 
     condition({}, {
@@ -83,11 +87,12 @@ test('raise errors in travis environment', function (t) {
     }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EBRANCHMISMATCH')
+      tt.is(err.stop, false)
     })
   })
 
   t.test('supports travis-deploy-once', function (tt) {
-    tt.plan(6)
+    tt.plan(8)
 
     proxyquire('./', {
       'travis-deploy-once': Promise.resolve.bind(null, true)
@@ -116,6 +121,7 @@ test('raise errors in travis environment', function (t) {
     }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'ENOBUILDLEADER')
+      tt.is(err.stop, false)
     })
 
     proxyquire('./', {
@@ -131,6 +137,7 @@ test('raise errors in travis environment', function (t) {
     }, function (err) {
       tt.ok(err instanceof SRError)
       tt.is(err.code, 'EOTHERSFAILED')
+      tt.is(err.stop, false)
     })
 
     var error = new Error()
