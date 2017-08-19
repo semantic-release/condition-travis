@@ -5,10 +5,7 @@ cache:
   - node_modules
 notifications:
   email: false
-node_js:
-- 8 # stable
-- 6 # LTS
-- 4 # maintenance
+node_js: 8
 before_script:
 - npm prune
 after_success:

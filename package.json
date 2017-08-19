@@ -9,7 +9,10 @@
   "dependencies": {
     "@semantic-release/error": "^1.0.0",
     "semver": "^5.0.3",
-    "travis-deploy-once": "1.0.0-node-0.10-support"
+    "travis-deploy-once": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=8"
   },
   "devDependencies": {
     "bluebird": "^3.4.6",
