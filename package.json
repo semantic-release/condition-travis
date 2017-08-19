@@ -12,14 +12,14 @@
   "dependencies": {
     "@semantic-release/error": "^1.0.0",
     "semver": "^5.0.3",
-    "travis-deploy-once": "^2.0.0"
+    "travis-deploy-once": "^2.0.1"
   },
   "devDependencies": {
     "coveralls": "^2.11.2",
     "greenkeeper-lockfile": "^1.8.1",
-    "nyc": "^11.1.0",
     "proxyquire": "^1.7.1",
     "semantic-release": "^7.0.2",
+    "simple-mock": "^0.8.0",
     "standard": "^10.0.3",
     "tap": "^10.7.2"
   },
@@ -46,10 +46,10 @@
     "url": "https://github.com/semantic-release/condition-travis.git"
   },
   "scripts": {
-    "coverage": "nyc report",
-    "coverage:upload": "npm run -s coverage -- --reporter=text-lcov | coveralls",
+    "coverage": "tap --coverage-report=lcov",
+    "coverage:upload": "tap --coverage-report=text-lcov | coveralls",
     "pretest": "standard",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "test": "nyc tap --no-cov test.js"
+    "test": "tap --100 --jobs-auto './test/{unit,integration}/**/*-test.js'"
   }
 }
