@@ -6,22 +6,22 @@
   "bugs": {
     "url": "https://github.com/semantic-release/condition-travis/issues"
   },
+  "engines": {
+    "node": ">=8"
+  },
   "dependencies": {
     "@semantic-release/error": "^1.0.0",
     "semver": "^5.0.3",
     "travis-deploy-once": "^2.0.0"
   },
-  "engines": {
-    "node": ">=8"
-  },
   "devDependencies": {
-    "bluebird": "^3.4.6",
     "coveralls": "^2.11.2",
-    "nyc": "^9.0.1",
+    "greenkeeper-lockfile": "^1.8.1",
+    "nyc": "^11.1.0",
     "proxyquire": "^1.7.1",
-    "semantic-release": "^6.3.1",
-    "standard": "^8.0.0",
-    "tap": "^10.0.0"
+    "semantic-release": "^7.0.2",
+    "standard": "^10.0.3",
+    "tap": "^10.7.2"
   },
   "files": [
     "index.js"
