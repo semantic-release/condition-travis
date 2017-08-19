@@ -1,14 +1,14 @@
-var deployOnce = require('travis-deploy-once')
+const deployOnce = require('travis-deploy-once')
 
-var semver = require('semver')
-var SRError = require('@semantic-release/error')
+const semver = require('semver')
+const SRError = require('@semantic-release/error')
 
-module.exports = function (pluginConfig, config, cb) {
-  var env = config.env
-  var options = config.options
+module.exports = async function (pluginConfig, config, callback) {
+  const env = config.env
+  const options = config.options
 
   if (env.TRAVIS !== 'true') {
-    return cb(new SRError(
+    return callback(new SRError(
       'semantic-release didn’t run on Travis CI and therefore a new version won’t be published.\n' +
       'You can customize this behavior using "verifyConditions" plugins: git.io/sr-plugins',
       'ENOTRAVIS'
@@ -16,25 +16,25 @@ module.exports = function (pluginConfig, config, cb) {
   }
 
   if (env.hasOwnProperty('TRAVIS_PULL_REQUEST') && env.TRAVIS_PULL_REQUEST !== 'false') {
-    return cb(new SRError(
+    return callback(new SRError(
       'This test run was triggered by a pull request and therefore a new version won’t be published.',
       'EPULLREQUEST'
     ))
   }
 
   if (env.TRAVIS_TAG) {
-    var errorMessage = 'This test run was triggered by a git tag and therefore a new version won’t be published.'
+    let errorMessage = 'This test run was triggered by a git tag and therefore a new version won’t be published.'
 
     if (semver.valid(env.TRAVIS_TAG)) {
       errorMessage += '\nIt is very likely that this tag was created by semantic-release itself.\n' +
        'Everything is okay. For log output of the actual publishing process look at the build that ran before this one.'
     }
 
-    return cb(new SRError(errorMessage, 'EGITTAG'))
+    return callback(new SRError(errorMessage, 'EGITTAG'))
   }
 
   if (options.branch !== env.TRAVIS_BRANCH) {
-    return cb(new SRError(
+    return callback(new SRError(
       'This test run was triggered on the branch ' + env.TRAVIS_BRANCH +
       ', while semantic-release is configured to only publish from ' +
       options.branch + '.\n' +
@@ -43,21 +43,26 @@ module.exports = function (pluginConfig, config, cb) {
     ))
   }
 
-  deployOnce().then(function (result) {
-    if (result == null) {
-      return cb(new SRError(
-        'This test run is not the build leader and therefore a new version won’t be published.',
-        'ENOBUILDLEADER'
-      ))
-    }
+  let result
+  try {
+    result = await deployOnce()
+  } catch (error) {
+    return callback(error)
+  }
 
-    if (result === false) {
-      return cb(new SRError(
-        'In this test run not all jobs passed and therefore a new version won’t be published.',
-        'EOTHERSFAILED'
-      ))
-    }
+  if (result == null) {
+    return callback(new SRError(
+      'This test run is not the build leader and therefore a new version won’t be published.',
+      'ENOBUILDLEADER'
+    ))
+  }
 
-    cb(null)
-  }, cb)
+  if (result === false) {
+    return callback(new SRError(
+      'In this test run not all jobs passed and therefore a new version won’t be published.',
+      'EOTHERSFAILED'
+    ))
+  }
+
+  callback(null)
 }
