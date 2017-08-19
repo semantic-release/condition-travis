@@ -8,6 +8,9 @@ notifications:
 node_js: 8
 before_script:
 - npm prune
+- npx -p greenkeeper-lockfile@1 greenkeeper-lockfile-update
+after_script:
+- npx -p greenkeeper-lockfile@1 greenkeeper-lockfile-upload
 after_success:
 - npm run coverage:upload
 - npm run semantic-release
