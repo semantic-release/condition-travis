@@ -1,4 +1,3 @@
-var Promise = require('bluebird')
 var proxyquire = require('proxyquire')
 var test = require('tap').test
 var SRError = require('@semantic-release/error')
