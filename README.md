@@ -6,6 +6,7 @@
 [![Dependency Status](https://david-dm.org/semantic-release/condition-travis/next.svg)](https://david-dm.org/semantic-release/condition-travis/next)
 [![devDependency Status](https://david-dm.org/semantic-release/condition-travis/next/dev-status.svg)](https://david-dm.org/semantic-release/condition-travis/next#info=devDependencies)
 
+[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 `@semantic-release/condition-travis` is the default implementation of
 `semantic-release`’s [verifyConditions](https://github.com/semantic-release/semantic-release#verifyconditions)
 extension point. I tests that the publish is
