@@ -9,14 +9,21 @@
   "engines": {
     "node": ">=8"
   },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
   "dependencies": {
     "@semantic-release/error": "^1.0.0",
     "semver": "^5.0.3",
     "travis-deploy-once": "^2.0.1"
   },
   "devDependencies": {
+    "commitizen": "^2.9.6",
     "coveralls": "^2.11.2",
     "greenkeeper-lockfile": "^1.8.1",
+    "cz-conventional-changelog": "^2.0.0",
     "eslint": "^4.7.0",
     "eslint-config-prettier": "^2.5.0",
     "eslint-config-standard": "^10.2.1",
@@ -83,6 +90,7 @@
     "coverage": "tap --coverage-report=lcov",
     "coverage:upload": "tap --coverage-report=text-lcov | coveralls",
     "pretest": "standard",
+    "cm": "git-cz",
     "lint": "eslint lib test",
     "pretest": "npm run lint",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",

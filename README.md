@@ -8,6 +8,8 @@
 
 [![license](https://img.shields.io/github/license/semantic-release/condition-travis.svg)](https://github.com/semantic-release/condition-travis/blob/master/LICENSE)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
 `@semantic-release/condition-travis` is the default implementation of
 `semantic-release`’s [verifyConditions](https://github.com/semantic-release/semantic-release#verifyconditions)
 extension point. I tests that the publish is
