@@ -11,9 +11,10 @@ before_script:
 - npx -p greenkeeper-lockfile@1 greenkeeper-lockfile-update
 after_script:
 - npx -p greenkeeper-lockfile@1 greenkeeper-lockfile-upload
-after_success:
-- npm run coverage:upload
-- npm run semantic-release
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
+after_success:
+  - npm run coveralls
+  - npm run coverage
+  - npm run semantic-release
