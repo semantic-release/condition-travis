@@ -1,16 +1,7 @@
-sudo: false
 language: node_js
-cache:
-  directories:
-  - node_modules
 notifications:
   email: false
 node_js: 8
-before_script:
-- npm prune
-- npx -p greenkeeper-lockfile@1 greenkeeper-lockfile-update
-after_script:
-- npx -p greenkeeper-lockfile@1 greenkeeper-lockfile-upload
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/
