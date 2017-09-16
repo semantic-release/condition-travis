@@ -1,7 +1,7 @@
 {
   "name": "@semantic-release/condition-travis",
   "description": "make sure only the right builds on travis get published",
-  "version": "0.0.0-placeholder",
+  "version": "0.0.0-development",
   "author": "Stephan Bönnemann <stephan@boennemann.me> (http://boennemann.me)",
   "bugs": {
     "url": "https://github.com/semantic-release/condition-travis/issues"
@@ -40,6 +40,9 @@
     "semantic-release": "^7.0.2",
     "simple-mock": "^0.8.0"
   },
+  "engines": {
+    "node": ">=8"
+  },
   "eslintConfig": {
     "extends": [
       "standard",
@@ -72,6 +75,7 @@
     "travis-ci"
   ],
   "license": "MIT",
+  "main": "index.js",
   "nyc": {
     "lines": 100,
     "statements": 100,
