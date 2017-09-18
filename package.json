@@ -21,8 +21,8 @@
   },
   "devDependencies": {
     "ava": "^0.22.0",
+    "codecov": "^2.3.0",
     "commitizen": "^2.9.6",
-    "coveralls": "^2.11.2",
     "cz-conventional-changelog": "^2.0.0",
     "eslint": "^4.7.0",
     "eslint-config-prettier": "^2.5.0",
@@ -104,8 +104,8 @@
   "scripts": {
     "clean": "rimraf coverage && rimraf .nyc_output",
     "cm": "git-cz",
+    "codecov": "codecov",
     "coverage": "nyc check-coverage",
-    "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint lib test",
     "pretest": "npm run clean && npm run lint",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
