@@ -2,7 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/%40semantic-release%2Fcondition-travis.svg)](http://badge.fury.io/js/%40semantic-release%2Fcondition-travis)
 [![Build Status](https://travis-ci.org/semantic-release/condition-travis.svg?branch=next)](https://travis-ci.org/semantic-release/condition-travis)
-[![Coverage Status](https://coveralls.io/repos/semantic-release/condition-travis/badge.svg?branch=next&service=github)](https://coveralls.io/github/semantic-release/condition-travis?branch=next)
+[![Codecov](https://img.shields.io/codecov/c/github/semantic-release/condition-travis.svg)](https://codecov.io/gh/semantic-release/condition-travis)
 [![Dependency Status](https://david-dm.org/semantic-release/condition-travis/next.svg)](https://david-dm.org/semantic-release/condition-travis/next)
 [![devDependency Status](https://david-dm.org/semantic-release/condition-travis/next/dev-status.svg)](https://david-dm.org/semantic-release/condition-travis/next#info=devDependencies)
 
