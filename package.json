@@ -6,9 +6,6 @@
   "bugs": {
     "url": "https://github.com/semantic-release/condition-travis/issues"
   },
-  "engines": {
-    "node": ">=8"
-  },
   "config": {
     "commitizen": {
       "path": "cz-conventional-changelog"
