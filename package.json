@@ -41,7 +41,7 @@
     "simple-mock": "^0.8.0"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=4"
   },
   "eslintConfig": {
     "extends": [
