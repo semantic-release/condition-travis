@@ -1,16 +1,14 @@
 # condition-travis
 
-[![npm version](https://badge.fury.io/js/%40semantic-release%2Fcondition-travis.svg)](http://badge.fury.io/js/%40semantic-release%2Fcondition-travis)
-[![Build Status](https://travis-ci.org/semantic-release/condition-travis.svg?branch=next)](https://travis-ci.org/semantic-release/condition-travis)
-[![Codecov](https://img.shields.io/codecov/c/github/semantic-release/condition-travis.svg)](https://codecov.io/gh/semantic-release/condition-travis)
-[![Dependency Status](https://david-dm.org/semantic-release/condition-travis/next.svg)](https://david-dm.org/semantic-release/condition-travis/next)
-[![devDependency Status](https://david-dm.org/semantic-release/condition-travis/next/dev-status.svg)](https://david-dm.org/semantic-release/condition-travis/next#info=devDependencies)
-
-[![license](https://img.shields.io/github/license/semantic-release/condition-travis.svg)](https://github.com/semantic-release/condition-travis/blob/master/LICENSE)
+[![npm](https://img.shields.io/npm/v/@semantic-release/condition-travis.svg)](https://www.npmjs.com/package/@semantic-release/condition-travis)
 [![Greenkeeper badge](https://badges.greenkeeper.io/semantic-release/condition-travis.svg)](https://greenkeeper.io/)
+[![license](https://img.shields.io/github/license/semantic-release/condition-travis.svg)](https://github.com/semantic-release/condition-travis/blob/master/LICENSE)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
+[![Travis](https://img.shields.io/travis/semantic-release/condition-travis.svg)](https://travis-ci.org/semantic-release/condition-travis)
+[![Codecov](https://img.shields.io/codecov/c/github/semantic-release/condition-travis.svg)](https://codecov.io/gh/semantic-release/condition-travis)
 
 `@semantic-release/condition-travis` is the default implementation of
 `semantic-release`’s [verifyConditions](https://github.com/semantic-release/semantic-release#verifyconditions)
