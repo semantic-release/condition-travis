@@ -1,11 +1,15 @@
-const deployOnce = require('travis-deploy-once');
+const url = require('url');
+const GitHubApi = require('github');
+const parseSlug = require('parse-github-repo-url');
 const semver = require('semver');
+const deployOnce = require('travis-deploy-once');
 const SRError = require('@semantic-release/error');
 
-module.exports = async function(pluginConfig, config, callback) {
-  const env = config.env;
-  const options = config.options;
-
+module.exports = async function(
+  pluginConfig,
+  {pkg, env, options: {branch, githubUrl, githubToken, githubApiPathPrefix} = {}},
+  callback
+) {
   if (env.TRAVIS !== 'true') {
     return callback(
       new SRError(
@@ -35,10 +39,10 @@ module.exports = async function(pluginConfig, config, callback) {
     return callback(new SRError(errorMessage, 'EGITTAG'));
   }
 
-  if (options.branch !== env.TRAVIS_BRANCH) {
+  if (branch !== env.TRAVIS_BRANCH) {
     return callback(
       new SRError(
-        `This test run was triggered on the branch ${env.TRAVIS_BRANCH}, while semantic-release is configured to only publish from ${options.branch}.\nYou can customize this behavior using the "branch" option: git.io/sr-options`,
+        `This test run was triggered on the branch ${env.TRAVIS_BRANCH}, while semantic-release is configured to only publish from ${branch}.\nYou can customize this behavior using the "branch" option: git.io/sr-options`,
         'EBRANCHMISMATCH'
       )
     );
@@ -46,7 +50,20 @@ module.exports = async function(pluginConfig, config, callback) {
 
   let result;
   try {
-    result = await deployOnce();
+    const {port, protocol, hostname} = githubUrl ? url.parse(githubUrl) : {};
+    const github = new GitHubApi({
+      port,
+      protocol: (protocol || '').split(':')[0] || null,
+      host: hostname,
+      pathPrefix: githubApiPathPrefix || null,
+    });
+    const [owner, repo] = parseSlug(pkg.repository.url);
+
+    github.authenticate({type: 'token', token: githubToken});
+
+    const {data: {private: pro}} = await github.repos.get({owner, repo});
+
+    result = await deployOnce({travisOpts: {pro}});
   } catch (error) {
     return callback(error);
   }
