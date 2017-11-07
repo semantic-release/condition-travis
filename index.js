@@ -42,7 +42,11 @@ module.exports = async function(
   if (branch !== env.TRAVIS_BRANCH) {
     return callback(
       new SRError(
-        `This test run was triggered on the branch ${env.TRAVIS_BRANCH}, while semantic-release is configured to only publish from ${branch}.\nYou can customize this behavior using the "branch" option: git.io/sr-options`,
+        `This test run was triggered on the branch ${
+          env.TRAVIS_BRANCH
+        }, while semantic-release is configured to only publish from ${
+          branch
+        }.\nYou can customize this behavior using the "branch" option: git.io/sr-options`,
         'EBRANCHMISMATCH'
       )
     );
