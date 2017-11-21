@@ -1,56 +1,80 @@
-# condition-travis
+# @semantic-release/condition-travis
 
-[![npm](https://img.shields.io/npm/v/@semantic-release/condition-travis.svg)](https://www.npmjs.com/package/@semantic-release/condition-travis)
-[![Greenkeeper badge](https://badges.greenkeeper.io/semantic-release/condition-travis.svg)](https://greenkeeper.io/)
-[![license](https://img.shields.io/github/license/semantic-release/condition-travis.svg)](https://github.com/semantic-release/condition-travis/blob/master/LICENSE)
-[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[semantic-release](https://github.com/semantic-release/semantic-release) plugin to check [Travis CI](https://travis-ci.org/) environment before publishing.
 
 [![Travis](https://img.shields.io/travis/semantic-release/condition-travis.svg)](https://travis-ci.org/semantic-release/condition-travis)
 [![Codecov](https://img.shields.io/codecov/c/github/semantic-release/condition-travis.svg)](https://codecov.io/gh/semantic-release/condition-travis)
+[![Greenkeeper badge](https://badges.greenkeeper.io/semantic-release/condition-travis.svg)](https://greenkeeper.io/)
 
-`@semantic-release/condition-travis` is the default implementation of
-`semantic-release`’s [verifyConditions](https://github.com/semantic-release/semantic-release#verifyconditions)
-extension point. I tests that the publish is
+Verify that `semantic-release` is running:
+-   on Travis CI
+-   on the right git branch and not on a PR build
+-   only after all other Travis jobs are successful (using [travis-deploy-once](https://github.com/semantic-release/travis-deploy-once))
 
-1. happening on Travis,
-2. on the right branch and
-3. not happening before all jobs succeeded
+The plugin is used by default by [semantic-release](https://github.com/semantic-release/semantic-release) so no specific configuration is requiered in `package.json`.
 
-## Usage
+## Travis configuration
 
-```js
-const condition = require('@semantic-release/condition-travis')
+`semantic-release` require Node node version >= 8, so at least one Travis job as to run on Node 8 (or greater).
 
-const pluginConfig = {} // not used in this plugin
-const config = {
-  options: {
-    // set to repository’s main branch. It's "master" by default but can
-    // be configured in the repository’s settings
-    branch: 'master'
-  },
-  env: {
-    // Travis environment variables
-    // see https://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
+### With one job 
 
-    // used to check if run on travis
-    TRAVIS: 'true',
+No specific configuration is required. `semantic-release` will run on the only Travis job.
 
-    // used to check if run on repository’s main branch
-    TRAVIS_BRANCH: 'master',
+```yml
+language: node_js
+node_js:
+  - 8
 
-    // builds triggered by a PR are ignored
-    TRAVIS_PULL_REQUEST: 'false',
-
-    // builds triggered by tags are ignored.
-    // Most often the tags have been created by semantic-release itself
-    TRAVIS_TAG: 'v1.2.3'
-  }
-}
-condition(pluginConfig)
+after_success:
+  - npm run semantic-release
 ```
 
-## License
+### With multiple jobs on different Node versions and OS
 
-MIT
+If there is multiple Node version and OS configured, [travis-deploy-once](https://github.com/semantic-release/travis-deploy-once) will guarantee that `semantic-release` is executed on the highest Node version, after all other jobs are successful, without any additionnal configurations.
+
+```yml
+language: node_js
+node_js:
+  - 8
+  - 6
+  - 4
+os:
+  - linux
+  - osx
+
+after_success:
+  - npm run semantic-release
+```
+
+In this example Travis will run 6 jobs (Node 8/Linux, Node 8/ OSX, Node 6/Linux etc...) and `semantic-release` will be executed on Node 8 on Linux, only after the 5 other jobs are successful.
+
+### Using Travis Build stages
+
+Travis support [Build Stages](https://docs.travis-ci.com/user/build-stages/) for more complex workflows. It's possible to use `semantic-release` with Build Stages by configuring the environment variable `BUILD_LEADER_ID` to defined which job will run `semantic-release`.
+
+**The build stage configuration has to guarantee that the job configured with `BUILD_LEADER_ID` will run only after all other jobs are successful.**
+ 
+```yml
+language: node_js
+node_js:
+  - 8
+  - 6
+  - 4
+os:
+  - linux
+  - osx
+env:
+  - BUILD_LEADER_ID=7
+jobs:
+  include:
+    - stage: release
+      node_js: 8
+      os: linux
+      after_success: 
+        - npm run semantic-release
+```
+
+In this example Travis will run 6 jobs in the default stage (Node 4, 6 and 8 on Linux and OSX) and if those 6 jobs are successful the release stage will run the 7th job (on Node 8 / Linux) that will execute `semantic-release`.
+The environment variable `BUILD_LEADER_ID` is set to `7` as `semantic-release` should run on the 7th job.
