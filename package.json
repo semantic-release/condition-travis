@@ -56,7 +56,8 @@
     }
   },
   "files": [
-    "index.js"
+    "index.js",
+    "lib"
   ],
   "homepage": "https://github.com/semantic-release/condition-travis#readme",
   "keywords": [
@@ -70,6 +71,7 @@
   "main": "index.js",
   "nyc": {
     "include": [
+      "lib/**/*.js",
       "index.js"
     ],
     "reporter": [
@@ -99,7 +101,7 @@
     "clean": "rimraf coverage && rimraf .nyc_output",
     "cm": "git-cz",
     "codecov": "codecov -f coverage/coverage-final.json",
-    "lint": "eslint .",
+    "lint": "eslint index.js lib",
     "pretest": "npm run clean && npm run lint",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "test": "nyc ava -v"
