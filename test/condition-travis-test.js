@@ -6,12 +6,26 @@ import nock from 'nock';
 import {authenticate} from './helpers/mock-github';
 import SemanticReleaseError from '@semantic-release/error';
 
+test.beforeEach(async t => {
+  // Save the current process.env
+  t.context.env = Object.assign({}, process.env);
+  // Delete env variables in case they are on the machine running the tests
+  delete process.env.GH_TOKEN;
+  delete process.env.GITHUB_TOKEN;
+  delete process.env.GH_URL;
+  delete process.env.GITHUB_URL;
+  delete process.env.GH_PREFIX;
+  delete process.env.GITHUB_PREFIX;
+});
+
 test.afterEach.always(t => {
+  // Restore process.env
+  process.env = Object.assign({}, t.context.env);
   // Reset nock
   nock.cleanAll();
 });
 
-test('Only runs on travis', async t => {
+test.serial('Only runs on travis', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const error = await t.throws(pify(condition)({}, {env: {}}));
@@ -21,7 +35,7 @@ test('Only runs on travis', async t => {
   t.true(travisDeployOnce.notCalled);
 });
 
-test('Not running on pull requests', async t => {
+test.serial('Not running on pull requests', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const error = await t.throws(pify(condition)({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: '105'}}));
@@ -31,7 +45,7 @@ test('Not running on pull requests', async t => {
   t.true(travisDeployOnce.notCalled);
 });
 
-test('Not running on tags', async t => {
+test.serial('Not running on tags', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const error = await t.throws(
@@ -43,7 +57,7 @@ test('Not running on tags', async t => {
   t.true(travisDeployOnce.notCalled);
 });
 
-test('Not running on tags that don’t look like semantic versions', async t => {
+test.serial('Not running on tags that don’t look like semantic versions', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const error = await t.throws(
@@ -55,7 +69,7 @@ test('Not running on tags that don’t look like semantic versions', async t => 
   t.true(travisDeployOnce.notCalled);
 });
 
-test('Does not run on non-master branch by default', async t => {
+test.serial('Does not run on non-master branch by default', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
 
@@ -68,7 +82,7 @@ test('Does not run on non-master branch by default', async t => {
   t.true(travisDeployOnce.notCalled);
 });
 
-test('Does not run on master if branch configured as "foo"', async t => {
+test.serial('Does not run on master if branch configured as "foo"', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const error = await t.throws(
@@ -92,11 +106,11 @@ test.serial('travis-deploy-once resolves with true', async t => {
     .reply(200, {private: pro});
 
   const result = await pify(condition)(
-    {},
+    {githubToken},
     {
       pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
       env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-      options: {branch: 'master', githubToken},
+      options: {branch: 'master'},
     }
   );
 
@@ -111,9 +125,9 @@ test.serial('travis-deploy-once resolves with null', async t => {
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const owner = 'test_user';
   const repo = 'test_repo';
-  const githubToken = 'github_token';
+  process.env.GITHUB_TOKEN = 'github_token';
   const pro = false;
-  const github = authenticate({githubToken})
+  const github = authenticate({githubToken: process.env.GITHUB_TOKEN})
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
 
@@ -123,7 +137,7 @@ test.serial('travis-deploy-once resolves with null', async t => {
       {
         pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
         env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-        options: {branch: 'master', githubToken},
+        options: {branch: 'master'},
       }
     )
   );
@@ -140,9 +154,9 @@ test.serial('travis-deploy-once resolves with false', async t => {
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const owner = 'test_user';
   const repo = 'test_repo';
-  const githubToken = 'github_token';
+  process.env.GH_TOKEN = 'github_token';
   const pro = false;
-  const github = authenticate({githubToken})
+  const github = authenticate({githubToken: process.env.GH_TOKEN})
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
 
@@ -152,7 +166,7 @@ test.serial('travis-deploy-once resolves with false', async t => {
       {
         pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
         env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-        options: {branch: 'master', githubToken},
+        options: {branch: 'master'},
       }
     )
   );
@@ -177,11 +191,11 @@ test.serial('travis-deploy-once rejects with error', async t => {
 
   const error = await t.throws(
     pify(condition)(
-      {},
+      {githubToken},
       {
         pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
         env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-        options: {branch: 'master', githubToken},
+        options: {branch: 'master'},
       }
     )
   );
@@ -205,11 +219,11 @@ test.serial('Throws an error if github call fails', async t => {
 
   const error = await t.throws(
     pify(condition)(
-      {},
+      {githubToken},
       {
         pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
         env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-        options: {branch: 'master', githubToken},
+        options: {branch: 'master'},
       }
     )
   );
@@ -231,11 +245,11 @@ test.serial('Calls travis-run-once with pro parameter determined by github call'
     .reply(200, {private: pro});
 
   const result = await pify(condition)(
-    {},
+    {githubToken},
     {
       pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
       env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-      options: {branch: 'master', githubToken},
+      options: {branch: 'master'},
     }
   );
 
@@ -258,11 +272,11 @@ test.serial('Calls travis-run-once with pro parameter determined by github call 
     .reply(200, {private: pro});
 
   const result = await pify(condition)(
-    {},
+    {githubToken, githubUrl},
     {
       pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
       env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-      options: {branch: 'master', githubToken, githubUrl},
+      options: {branch: 'master'},
     }
   );
 

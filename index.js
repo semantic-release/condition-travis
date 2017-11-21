@@ -3,13 +3,11 @@ const GitHubApi = require('github');
 const parseSlug = require('parse-github-repo-url');
 const semver = require('semver');
 const deployOnce = require('travis-deploy-once');
+const resolveConfig = require('./lib/resolve-config');
 const SRError = require('@semantic-release/error');
 
-module.exports = async function(
-  pluginConfig,
-  {pkg, env, options: {branch, githubUrl, githubToken, githubApiPathPrefix} = {}},
-  callback
-) {
+module.exports = async function(pluginConfig, {pkg, env, options: {branch} = {}}, callback) {
+  const {githubToken, githubUrl, githubApiPathPrefix} = resolveConfig(pluginConfig);
   if (env.TRAVIS !== 'true') {
     return callback(
       new SRError(

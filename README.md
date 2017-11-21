@@ -11,7 +11,17 @@ Verify that `semantic-release` is running:
 -   on the right git branch and not on a PR build
 -   only after all other Travis jobs are successful (using [travis-deploy-once](https://github.com/semantic-release/travis-deploy-once))
 
-The plugin is used by default by [semantic-release](https://github.com/semantic-release/semantic-release) so no specific configuration is requiered in `package.json`.
+### Options
+
+| Option                | Description                                                          | Default                                                |
+| --------------------- | -------------------------------------------------------------------- | ------------------------------------------------------ |
+| `githubToken`         | **Required.** The Github token used to authenticate with Travis API. | `process.env.GH_TOKEN` or `process.env.GITHUB_TOKEN`   |
+| `githubUrl`           | The GitHub Enterprise endpoint.                                      | `process.env.GH_URL` or `process.env.GITHUB_URL`       |
+| `githubApiPathPrefix` | The GitHub Enterprise API prefix.                                    | `process.env.GH_PREFIX` or `process.env.GITHUB_PREFIX` |
+
+## Configuration
+
+The plugin is used by default by [semantic-release](https://github.com/semantic-release/semantic-release) so no specific configuration is requiered if `githubToken`, `githubUrl` and `githubApiPathPrefix` are set via environment variable.
 
 ## Travis configuration
 
