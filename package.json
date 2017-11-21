@@ -1,6 +1,6 @@
 {
   "name": "@semantic-release/condition-travis",
-  "description": "make sure only the right builds on travis get published",
+  "description": "Check Travis CI environment before publishing",
   "version": "0.0.0-development",
   "author": "Stephan Bönnemann <stephan@boennemann.me> (http://boennemann.me)",
   "bugs": {
