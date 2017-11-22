@@ -3,10 +3,10 @@ import pify from 'pify';
 import proxyquire from 'proxyquire';
 import {stub} from 'sinon';
 import nock from 'nock';
-import {authenticate} from './helpers/mock-github';
 import SemanticReleaseError from '@semantic-release/error';
+import authenticate from './helpers/mock-github';
 
-test.beforeEach(async t => {
+test.beforeEach(t => {
   // Save the current process.env
   t.context.env = Object.assign({}, process.env);
   // Delete env variables in case they are on the machine running the tests
