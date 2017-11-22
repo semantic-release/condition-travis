@@ -3,8 +3,8 @@ const GitHubApi = require('github');
 const parseSlug = require('parse-github-repo-url');
 const semver = require('semver');
 const deployOnce = require('travis-deploy-once');
-const resolveConfig = require('./lib/resolve-config');
 const SRError = require('@semantic-release/error');
+const resolveConfig = require('./lib/resolve-config');
 
 module.exports = async function(pluginConfig, {pkg, env, options: {branch} = {}}, callback) {
   const {githubToken, githubUrl, githubApiPathPrefix} = resolveConfig(pluginConfig);
@@ -17,7 +17,7 @@ module.exports = async function(pluginConfig, {pkg, env, options: {branch} = {}}
     );
   }
 
-  if (env.hasOwnProperty('TRAVIS_PULL_REQUEST') && env.TRAVIS_PULL_REQUEST !== 'false') {
+  if (Object.prototype.hasOwnProperty.call(env, 'TRAVIS_PULL_REQUEST') && env.TRAVIS_PULL_REQUEST !== 'false') {
     return callback(
       new SRError(
         'This test run was triggered by a pull request and therefore a new version won’t be published.',
@@ -66,11 +66,11 @@ module.exports = async function(pluginConfig, {pkg, env, options: {branch} = {}}
     const {data: {private: pro}} = await github.repos.get({owner, repo});
 
     result = await deployOnce({travisOpts: {pro}});
-  } catch (error) {
-    return callback(error);
+  } catch (err) {
+    return callback(err);
   }
 
-  if (result == null) {
+  if (result === null) {
     return callback(
       new SRError(
         'This test run is not the build leader and therefore a new version won’t be published.',
