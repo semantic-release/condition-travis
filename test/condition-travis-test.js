@@ -15,6 +15,11 @@ test.beforeEach(t => {
   delete process.env.GITHUB_URL;
   delete process.env.GH_PREFIX;
   delete process.env.GITHUB_PREFIX;
+  delete process.env.TRAVIS;
+  delete process.env.TRAVIS_PULL_REQUEST;
+  delete process.env.TRAVIS_TAG;
+  delete process.env.TRAVIS_BRANCH;
+  delete process.env.TRAVIS;
 });
 
 test.afterEach.always(t => {
@@ -27,7 +32,8 @@ test.afterEach.always(t => {
 test.serial('Only runs on travis', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
-  const error = await t.throws(condition({}, {env: {}}));
+
+  const error = await t.throws(condition({}, {options: {}}));
 
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'ENOTRAVIS');
@@ -37,7 +43,10 @@ test.serial('Only runs on travis', async t => {
 test.serial('Not running on pull requests', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
-  const error = await t.throws(condition({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: '105'}}));
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_PULL_REQUEST = '105';
+
+  const error = await t.throws(condition({}, {options: {}}));
 
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'EPULLREQUEST');
@@ -47,9 +56,11 @@ test.serial('Not running on pull requests', async t => {
 test.serial('Not running on tags', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
-  const error = await t.throws(
-    condition({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: 'false', TRAVIS_TAG: 'v1.0.0'}})
-  );
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_PULL_REQUEST = 'false';
+  process.env.TRAVIS_TAG = 'v1.0.0';
+
+  const error = await t.throws(condition({}, {options: {}}));
 
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'EGITTAG');
@@ -59,9 +70,11 @@ test.serial('Not running on tags', async t => {
 test.serial('Not running on tags that don’t look like semantic versions', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
-  const error = await t.throws(
-    condition({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: 'false', TRAVIS_TAG: 'vfoo'}})
-  );
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_PULL_REQUEST = 'false';
+  process.env.TRAVIS_TAG = 'vfoo';
+
+  const error = await t.throws(condition({}, {options: {}}));
 
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'EGITTAG');
@@ -71,10 +84,10 @@ test.serial('Not running on tags that don’t look like semantic versions', asyn
 test.serial('Does not run on non-master branch by default', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'notmaster';
 
-  const error = await t.throws(
-    condition({}, {env: {TRAVIS: 'true', TRAVIS_BRANCH: 'notmaster'}, options: {branch: 'master'}})
-  );
+  const error = await t.throws(condition({}, {options: {branch: 'master'}}));
 
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'EBRANCHMISMATCH');
@@ -84,9 +97,10 @@ test.serial('Does not run on non-master branch by default', async t => {
 test.serial('Does not run on master if branch configured as "foo"', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
-  const error = await t.throws(
-    condition({}, {env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'}, options: {branch: 'foo'}})
-  );
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
+
+  const error = await t.throws(condition({}, {options: {branch: 'foo'}}));
 
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'EBRANCHMISMATCH');
@@ -103,14 +117,12 @@ test.serial('travis-deploy-once resolves with true', async t => {
   const github = authenticate({githubToken})
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
 
   const result = await condition(
     {githubToken},
-    {
-      pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
-      env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-      options: {branch: 'master'},
-    }
+    {options: {branch: 'master', repositoryUrl: `git+https://github.com/${owner}/${repo}.git`}}
   );
 
   t.falsy(result);
@@ -125,20 +137,15 @@ test.serial('travis-deploy-once resolves with null', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
   process.env.GITHUB_TOKEN = 'github_token';
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
   const pro = false;
   const github = authenticate({githubToken: process.env.GITHUB_TOKEN})
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
 
   const error = await t.throws(
-    condition(
-      {},
-      {
-        pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
-        env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-        options: {branch: 'master'},
-      }
-    )
+    condition({}, {options: {branch: 'master', repositoryUrl: `git+https://github.com/${owner}/${repo}.git`}})
   );
 
   t.true(error instanceof SemanticReleaseError);
@@ -154,20 +161,15 @@ test.serial('travis-deploy-once resolves with false', async t => {
   const owner = 'test_user';
   const repo = 'test_repo';
   process.env.GH_TOKEN = 'github_token';
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
   const pro = false;
   const github = authenticate({githubToken: process.env.GH_TOKEN})
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
 
   const error = await t.throws(
-    condition(
-      {},
-      {
-        pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
-        env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-        options: {branch: 'master'},
-      }
-    )
+    condition({}, {options: {branch: 'master', repositoryUrl: `git+https://github.com/${owner}/${repo}.git`}})
   );
 
   t.true(error instanceof SemanticReleaseError);
@@ -184,6 +186,8 @@ test.serial('travis-deploy-once rejects with error', async t => {
   const repo = 'test_repo';
   const githubToken = 'github_token';
   const pro = false;
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
   const github = authenticate({githubToken})
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
@@ -191,11 +195,7 @@ test.serial('travis-deploy-once rejects with error', async t => {
   const error = await t.throws(
     condition(
       {githubToken},
-      {
-        pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
-        env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-        options: {branch: 'master'},
-      }
+      {options: {branch: 'master', repositoryUrl: `git+https://github.com/${owner}/${repo}.git`}}
     )
   );
 
@@ -206,12 +206,27 @@ test.serial('travis-deploy-once rejects with error', async t => {
   t.true(github.isDone());
 });
 
+test.serial('Throw SemanticReleaseError for invalid repositoryUrl', async t => {
+  const travisDeployOnce = stub();
+  const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
+  const githubToken = 'github_token';
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
+
+  const error = await t.throws(condition({githubToken}, {options: {branch: 'master', repositoryUrl: 'invalid_url'}}));
+
+  t.true(error instanceof SemanticReleaseError);
+  t.is(error.code, 'EINVALIDGITURL');
+});
+
 test.serial('Throws an error if github call fails', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const owner = 'test_user';
   const repo = 'test_repo';
   const githubToken = 'github_token';
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
   const github = authenticate({githubToken})
     .get(`/repos/${owner}/${repo}`)
     .reply(401);
@@ -219,11 +234,7 @@ test.serial('Throws an error if github call fails', async t => {
   const error = await t.throws(
     condition(
       {githubToken},
-      {
-        pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
-        env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-        options: {branch: 'master'},
-      }
+      {options: {branch: 'master', repositoryUrl: `git+https://github.com/${owner}/${repo}.git`}}
     )
   );
 
@@ -239,17 +250,15 @@ test.serial('Calls travis-run-once with pro parameter determined by github call'
   const repo = 'test_repo';
   const githubToken = 'github_token';
   const pro = true;
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
   const github = authenticate({githubToken})
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
 
   const result = await condition(
     {githubToken},
-    {
-      pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
-      env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-      options: {branch: 'master'},
-    }
+    {options: {branch: 'master', repositoryUrl: `git+https://github.com/${owner}/${repo}.git`}}
   );
 
   t.falsy(result);
@@ -266,17 +275,15 @@ test.serial('Calls travis-run-once with pro parameter determined by github call 
   const githubToken = 'github_token';
   const pro = true;
   const githubUrl = 'https://testurl.com:443';
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
   const github = authenticate({githubToken, githubUrl})
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
 
   const result = await condition(
     {githubToken, githubUrl},
-    {
-      pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
-      env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'},
-      options: {branch: 'master'},
-    }
+    {options: {branch: 'master', repositoryUrl: `git+https://testurl.com:443/${owner}/${repo}.git`}}
   );
 
   t.falsy(result);
