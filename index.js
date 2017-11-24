@@ -1,7 +1,6 @@
 const {parse} = require('url');
 const GitHubApi = require('github');
 const parseGithubUrl = require('parse-github-url');
-const semver = require('semver');
 const deployOnce = require('travis-deploy-once');
 const SemanticReleaseError = require('@semantic-release/error');
 const resolveConfig = require('./lib/resolve-config');
@@ -23,17 +22,6 @@ module.exports = async function(pluginConfig, {options: {branch, repositoryUrl}}
       'This test run was triggered by a pull request and therefore a new version won’t be published.',
       'EPULLREQUEST'
     );
-  }
-
-  if (process.env.TRAVIS_TAG) {
-    let errorMessage = 'This test run was triggered by a git tag and therefore a new version won’t be published.';
-
-    if (semver.valid(process.env.TRAVIS_TAG)) {
-      errorMessage +=
-        '\nIt is very likely that this tag was created by semantic-release itself.\nEverything is okay. For log output of the actual publishing process look at the build that ran before this one.';
-    }
-
-    throw new SemanticReleaseError(errorMessage, 'EGITTAG');
   }
 
   if (branch !== process.env.TRAVIS_BRANCH) {
