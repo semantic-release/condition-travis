@@ -17,7 +17,6 @@ test.beforeEach(t => {
   delete process.env.GITHUB_PREFIX;
   delete process.env.TRAVIS;
   delete process.env.TRAVIS_PULL_REQUEST;
-  delete process.env.TRAVIS_TAG;
   delete process.env.TRAVIS_BRANCH;
   delete process.env.TRAVIS;
 });
@@ -50,34 +49,6 @@ test.serial('Not running on pull requests', async t => {
 
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'EPULLREQUEST');
-  t.true(travisDeployOnce.notCalled);
-});
-
-test.serial('Not running on tags', async t => {
-  const travisDeployOnce = stub();
-  const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
-  process.env.TRAVIS = 'true';
-  process.env.TRAVIS_PULL_REQUEST = 'false';
-  process.env.TRAVIS_TAG = 'v1.0.0';
-
-  const error = await t.throws(condition({}, {options: {}}));
-
-  t.true(error instanceof SemanticReleaseError);
-  t.is(error.code, 'EGITTAG');
-  t.true(travisDeployOnce.notCalled);
-});
-
-test.serial('Not running on tags that don’t look like semantic versions', async t => {
-  const travisDeployOnce = stub();
-  const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
-  process.env.TRAVIS = 'true';
-  process.env.TRAVIS_PULL_REQUEST = 'false';
-  process.env.TRAVIS_TAG = 'vfoo';
-
-  const error = await t.throws(condition({}, {options: {}}));
-
-  t.true(error instanceof SemanticReleaseError);
-  t.is(error.code, 'EGITTAG');
   t.true(travisDeployOnce.notCalled);
 });
 
