@@ -1,5 +1,4 @@
 import test from 'ava';
-import pify from 'pify';
 import proxyquire from 'proxyquire';
 import {stub} from 'sinon';
 import nock from 'nock';
@@ -28,7 +27,7 @@ test.afterEach.always(t => {
 test.serial('Only runs on travis', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
-  const error = await t.throws(pify(condition)({}, {env: {}}));
+  const error = await t.throws(condition({}, {env: {}}));
 
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'ENOTRAVIS');
@@ -38,7 +37,7 @@ test.serial('Only runs on travis', async t => {
 test.serial('Not running on pull requests', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
-  const error = await t.throws(pify(condition)({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: '105'}}));
+  const error = await t.throws(condition({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: '105'}}));
 
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'EPULLREQUEST');
@@ -49,7 +48,7 @@ test.serial('Not running on tags', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const error = await t.throws(
-    pify(condition)({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: 'false', TRAVIS_TAG: 'v1.0.0'}})
+    condition({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: 'false', TRAVIS_TAG: 'v1.0.0'}})
   );
 
   t.true(error instanceof SemanticReleaseError);
@@ -61,7 +60,7 @@ test.serial('Not running on tags that don’t look like semantic versions', asyn
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const error = await t.throws(
-    pify(condition)({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: 'false', TRAVIS_TAG: 'vfoo'}})
+    condition({}, {env: {TRAVIS: 'true', TRAVIS_PULL_REQUEST: 'false', TRAVIS_TAG: 'vfoo'}})
   );
 
   t.true(error instanceof SemanticReleaseError);
@@ -74,7 +73,7 @@ test.serial('Does not run on non-master branch by default', async t => {
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
 
   const error = await t.throws(
-    pify(condition)({}, {env: {TRAVIS: 'true', TRAVIS_BRANCH: 'notmaster'}, options: {branch: 'master'}})
+    condition({}, {env: {TRAVIS: 'true', TRAVIS_BRANCH: 'notmaster'}, options: {branch: 'master'}})
   );
 
   t.true(error instanceof SemanticReleaseError);
@@ -86,7 +85,7 @@ test.serial('Does not run on master if branch configured as "foo"', async t => {
   const travisDeployOnce = stub();
   const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
   const error = await t.throws(
-    pify(condition)({}, {env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'}, options: {branch: 'foo'}})
+    condition({}, {env: {TRAVIS: 'true', TRAVIS_BRANCH: 'master'}, options: {branch: 'foo'}})
   );
 
   t.true(error instanceof SemanticReleaseError);
@@ -105,7 +104,7 @@ test.serial('travis-deploy-once resolves with true', async t => {
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
 
-  const result = await pify(condition)(
+  const result = await condition(
     {githubToken},
     {
       pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
@@ -132,7 +131,7 @@ test.serial('travis-deploy-once resolves with null', async t => {
     .reply(200, {private: pro});
 
   const error = await t.throws(
-    pify(condition)(
+    condition(
       {},
       {
         pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
@@ -161,7 +160,7 @@ test.serial('travis-deploy-once resolves with false', async t => {
     .reply(200, {private: pro});
 
   const error = await t.throws(
-    pify(condition)(
+    condition(
       {},
       {
         pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
@@ -190,7 +189,7 @@ test.serial('travis-deploy-once rejects with error', async t => {
     .reply(200, {private: pro});
 
   const error = await t.throws(
-    pify(condition)(
+    condition(
       {githubToken},
       {
         pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
@@ -218,7 +217,7 @@ test.serial('Throws an error if github call fails', async t => {
     .reply(401);
 
   const error = await t.throws(
-    pify(condition)(
+    condition(
       {githubToken},
       {
         pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
@@ -244,7 +243,7 @@ test.serial('Calls travis-run-once with pro parameter determined by github call'
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
 
-  const result = await pify(condition)(
+  const result = await condition(
     {githubToken},
     {
       pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},
@@ -271,7 +270,7 @@ test.serial('Calls travis-run-once with pro parameter determined by github call 
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
 
-  const result = await pify(condition)(
+  const result = await condition(
     {githubToken, githubUrl},
     {
       pkg: {repository: {url: `git+https://github.com/${owner}/${repo}.git`}},

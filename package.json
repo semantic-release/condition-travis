@@ -27,7 +27,6 @@
     "eslint-plugin-prettier": "^2.3.0",
     "nock": "^9.0.22",
     "nyc": "^11.2.1",
-    "pify": "^3.0.0",
     "prettier": "~1.8.0",
     "proxyquire": "^1.7.1",
     "semantic-release": "^8.0.0",
