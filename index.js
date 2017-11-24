@@ -6,7 +6,7 @@ const deployOnce = require('travis-deploy-once');
 const SemanticReleaseError = require('@semantic-release/error');
 const resolveConfig = require('./lib/resolve-config');
 
-module.exports = async function(pluginConfig, {pkg, env, options: {branch} = {}}) {
+module.exports = async function(pluginConfig, {pkg, env, options: {branch}}) {
   const {githubToken, githubUrl, githubApiPathPrefix} = resolveConfig(pluginConfig);
   if (env.TRAVIS !== 'true') {
     throw new SemanticReleaseError(
