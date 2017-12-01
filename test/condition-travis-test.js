@@ -18,7 +18,7 @@ test.beforeEach(t => {
   delete process.env.TRAVIS;
   delete process.env.TRAVIS_PULL_REQUEST;
   delete process.env.TRAVIS_BRANCH;
-  delete process.env.TRAVIS;
+  delete process.env.TRAVIS_URL;
 });
 
 test.afterEach.always(t => {
@@ -98,7 +98,7 @@ test.serial('travis-deploy-once resolves with true', async t => {
 
   t.falsy(result);
   t.true(travisDeployOnce.calledOnce);
-  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro}});
+  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro, enterprise: undefined}});
   t.true(github.isDone());
 });
 
@@ -122,7 +122,7 @@ test.serial('travis-deploy-once resolves with null', async t => {
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'ENOBUILDLEADER');
   t.true(travisDeployOnce.calledOnce);
-  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro}});
+  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro, enterprise: undefined}});
   t.true(github.isDone());
 });
 
@@ -146,7 +146,7 @@ test.serial('travis-deploy-once resolves with false', async t => {
   t.true(error instanceof SemanticReleaseError);
   t.is(error.code, 'EOTHERSFAILED');
   t.true(travisDeployOnce.calledOnce);
-  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro}});
+  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro, enterprise: undefined}});
   t.true(github.isDone());
 });
 
@@ -173,7 +173,7 @@ test.serial('travis-deploy-once rejects with error', async t => {
   t.true(error instanceof Error);
   t.is(error.message, 'travis-deploy-once error');
   t.true(travisDeployOnce.calledOnce);
-  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro}});
+  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro, enterprise: undefined}});
   t.true(github.isDone());
 });
 
@@ -234,7 +234,7 @@ test.serial('Calls travis-run-once with pro parameter determined by github call'
 
   t.falsy(result);
   t.true(travisDeployOnce.calledOnce);
-  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro}});
+  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro, enterprise: undefined}});
   t.true(github.isDone());
 });
 
@@ -259,6 +259,31 @@ test.serial('Calls travis-run-once with pro parameter determined by github call 
 
   t.falsy(result);
   t.true(travisDeployOnce.calledOnce);
-  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro}});
+  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro, enterprise: undefined}});
+  t.true(github.isDone());
+});
+
+test.serial('Calls travis-run-once with enterprise parameter', async t => {
+  const travisDeployOnce = stub().resolves(true);
+  const condition = proxyquire('../', {'travis-deploy-once': travisDeployOnce});
+  const owner = 'test_user';
+  const repo = 'test_repo';
+  const githubToken = 'github_token';
+  const pro = false;
+  const travisUrl = 'https://travis.example.com';
+  const github = authenticate({githubToken})
+    .get(`/repos/${owner}/${repo}`)
+    .reply(200, {private: pro});
+  process.env.TRAVIS = 'true';
+  process.env.TRAVIS_BRANCH = 'master';
+
+  const result = await condition(
+    {githubToken, travisUrl},
+    {options: {branch: 'master', repositoryUrl: `git+https://github.com/${owner}/${repo}.git`}}
+  );
+
+  t.falsy(result);
+  t.true(travisDeployOnce.calledOnce);
+  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro, enterprise: travisUrl}});
   t.true(github.isDone());
 });

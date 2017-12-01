@@ -18,10 +18,11 @@ Verify that `semantic-release` is running:
 | `githubToken`         | **Required.** The Github token used to authenticate with Travis API. | `process.env.GH_TOKEN` or `process.env.GITHUB_TOKEN`   |
 | `githubUrl`           | The GitHub Enterprise endpoint.                                      | `process.env.GH_URL` or `process.env.GITHUB_URL`       |
 | `githubApiPathPrefix` | The GitHub Enterprise API prefix.                                    | `process.env.GH_PREFIX` or `process.env.GITHUB_PREFIX` |
+| `travisUrl`           | The Travis Enterprise endpoint.                                      | `process.env.TRAVIS_URL`                               |
 
 ## Configuration
 
-The plugin is used by default by [semantic-release](https://github.com/semantic-release/semantic-release) so no specific configuration is requiered if `githubToken`, `githubUrl` and `githubApiPathPrefix` are set via environment variable.
+The plugin is used by default by [semantic-release](https://github.com/semantic-release/semantic-release) so no specific configuration is required if `githubToken`, `githubUrl`, `githubApiPathPrefix` and `travisUrl` are set via environment variable.
 
 ## Travis configuration
 
@@ -42,7 +43,7 @@ after_success:
 
 ### With multiple jobs on different Node versions and OS
 
-If there is multiple Node version and OS configured, [travis-deploy-once](https://github.com/semantic-release/travis-deploy-once) will guarantee that `semantic-release` is executed on the highest Node version, after all other jobs are successful, without any additionnal configurations.
+If there are multiple Node versions and OSs configured, [travis-deploy-once](https://github.com/semantic-release/travis-deploy-once) will guarantee that `semantic-release` is executed on the highest Node version, after all other jobs are successful, without any additional configurations.
 
 ```yml
 language: node_js
