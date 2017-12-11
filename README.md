@@ -19,6 +19,7 @@ Verify that `semantic-release` is running:
 | `githubUrl`           | The GitHub Enterprise endpoint.                                      | `process.env.GH_URL` or `process.env.GITHUB_URL`       |
 | `githubApiPathPrefix` | The GitHub Enterprise API prefix.                                    | `process.env.GH_PREFIX` or `process.env.GITHUB_PREFIX` |
 | `travisUrl`           | The Travis Enterprise endpoint.                                      | `process.env.TRAVIS_URL`                               |
+| `travisApiPathPrefix` | The Travis Enterprise API prefix.                                    | `process.env.TRAVIS_PREFIX`                               |
 
 ## Configuration
 

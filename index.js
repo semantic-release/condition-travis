@@ -6,7 +6,7 @@ const SemanticReleaseError = require('@semantic-release/error');
 const resolveConfig = require('./lib/resolve-config');
 
 module.exports = async function(pluginConfig, {options: {branch, repositoryUrl}}) {
-  const {githubToken, githubUrl, githubApiPathPrefix, travisUrl} = resolveConfig(pluginConfig);
+  const {githubToken, githubUrl, githubApiPathPrefix, travisUrl, travisApiPathPrefix} = resolveConfig(pluginConfig);
   if (process.env.TRAVIS !== 'true') {
     throw new SemanticReleaseError(
       'semantic-release didn’t run on Travis CI and therefore a new version won’t be published.\nYou can customize this behavior using "verifyConditions" plugins: git.io/sr-plugins',
@@ -46,7 +46,8 @@ module.exports = async function(pluginConfig, {options: {branch, repositoryUrl}}
 
   const {data: {private: pro}} = await github.repos.get({owner, repo});
 
-  const result = await deployOnce({travisOpts: {pro, enterprise: travisUrl}});
+  const travisEnterpriseUrl = travisUrl ? travisUrl + travisApiPathPrefix : undefined;
+  const result = await deployOnce({travisOpts: {pro, enterprise: travisEnterpriseUrl}});
 
   if (result === null) {
     throw new SemanticReleaseError(

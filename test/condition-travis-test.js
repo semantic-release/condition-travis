@@ -19,6 +19,7 @@ test.beforeEach(t => {
   delete process.env.TRAVIS_PULL_REQUEST;
   delete process.env.TRAVIS_BRANCH;
   delete process.env.TRAVIS_URL;
+  delete process.env.TRAVIS_PREFIX;
 });
 
 test.afterEach.always(t => {
@@ -271,6 +272,7 @@ test.serial('Calls travis-run-once with enterprise parameter', async t => {
   const githubToken = 'github_token';
   const pro = false;
   const travisUrl = 'https://travis.example.com';
+  const travisApiPathPrefix = '/api';
   const github = authenticate({githubToken})
     .get(`/repos/${owner}/${repo}`)
     .reply(200, {private: pro});
@@ -278,12 +280,12 @@ test.serial('Calls travis-run-once with enterprise parameter', async t => {
   process.env.TRAVIS_BRANCH = 'master';
 
   const result = await condition(
-    {githubToken, travisUrl},
+    {githubToken, travisUrl, travisApiPathPrefix},
     {options: {branch: 'master', repositoryUrl: `git+https://github.com/${owner}/${repo}.git`}}
   );
 
   t.falsy(result);
   t.true(travisDeployOnce.calledOnce);
-  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro, enterprise: travisUrl}});
+  t.deepEqual(travisDeployOnce.firstCall.args[0], {travisOpts: {pro, enterprise: travisUrl + travisApiPathPrefix}});
   t.true(github.isDone());
 });
