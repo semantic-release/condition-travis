@@ -28,9 +28,7 @@ module.exports = async function(pluginConfig, {options: {branch, repositoryUrl}}
     throw new SemanticReleaseError(
       `This test run was triggered on the branch ${
         process.env.TRAVIS_BRANCH
-      }, while semantic-release is configured to only publish from ${
-        branch
-      }.\nYou can customize this behavior using the "branch" option: git.io/sr-options`,
+      }, while semantic-release is configured to only publish from ${branch}.\nYou can customize this behavior using the "branch" option: git.io/sr-options`,
       'EBRANCHMISMATCH'
     );
   }
