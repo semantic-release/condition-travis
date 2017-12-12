@@ -5,9 +5,10 @@ import nock from 'nock';
 import SemanticReleaseError from '@semantic-release/error';
 import authenticate from './helpers/mock-github';
 
-test.beforeEach(t => {
-  // Save the current process.env
-  t.context.env = Object.assign({}, process.env);
+// Save the current process.env
+const envBackup = Object.assign({}, process.env);
+
+test.beforeEach(() => {
   // Delete env variables in case they are on the machine running the tests
   delete process.env.GH_TOKEN;
   delete process.env.GITHUB_TOKEN;
@@ -21,9 +22,9 @@ test.beforeEach(t => {
   delete process.env.TRAVIS_URL;
 });
 
-test.afterEach.always(t => {
+test.afterEach.always(() => {
   // Restore process.env
-  process.env = Object.assign({}, t.context.env);
+  process.env = envBackup;
   // Reset nock
   nock.cleanAll();
 });
