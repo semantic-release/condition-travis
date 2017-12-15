@@ -35,7 +35,10 @@ module.exports = async function(pluginConfig, {options: {branch, repositoryUrl}}
 
   const {name: repo, owner} = parseGithubUrl(repositoryUrl);
   if (!owner || !repo) {
-    throw new SemanticReleaseError('The git repository URL ${} is not a valid Github URL.', 'EINVALIDGITURL');
+    throw new SemanticReleaseError(
+      `The git repository URL ${repositoryUrl} is not a valid Github URL.`,
+      'EINVALIDGITURL'
+    );
   }
 
   let {port, protocol, hostname: host} = githubUrl ? parse(githubUrl) : {};
